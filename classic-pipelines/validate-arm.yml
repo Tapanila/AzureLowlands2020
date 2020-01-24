@@ -1,0 +1,56 @@
+pool:
+  name: Azure Pipelines
+  demands: azureps
+
+steps:
+- task: qetza.replacetokens.replacetokens-task.replacetokens@3
+  displayName: 'Replace Build Number token in arm/*'
+  inputs:
+    targetFiles: 'arm/*'
+    actionOnMissing: fail
+    tokenPrefix: '##{'
+    tokenSuffix: '}##'
+
+- task: AzureFileCopy@2
+  displayName: 'AzureBlob File Copy'
+  inputs:
+    SourcePath: arm
+    azureSubscription: 'Demo Azure Connection'
+    Destination: AzureBlob
+    storage: teemuarmdeploymentstg
+    ContainerName: validation
+    outputStorageUri: ArmContainerUri
+    outputStorageContainerSasToken: ArmContainerSasToken
+
+- task: qetza.replacetokens.replacetokens-task.replacetokens@3
+  displayName: 'Replace variable tokens in arm/*'
+  inputs:
+    targetFiles: 'arm/*'
+    actionOnMissing: fail
+
+- task: qetza.replacetokens.replacetokens-task.replacetokens@3
+  displayName: 'Replace boolean tokens in arm/*'
+  inputs:
+    targetFiles: 'arm/*'
+    actionOnMissing: fail
+    tokenPrefix: '"!{'
+    tokenSuffix: '}!"'
+
+- task: AzureResourceManagerTemplateDeployment@3
+  displayName: 'ARM Template deployment: Subscription scope'
+  inputs:
+    deploymentScope: Subscription
+    azureResourceManagerConnection: 'Demo Azure Connection'
+    subscriptionId: '60e27702-e726-425e-afbd-9cd079567686'
+    location: 'West Europe'
+    csmFile: arm/FullDeploy.json
+    csmParametersFile: arm/FullDeploy.parameters.json
+
+- task: AzureResourceGroupDeployment@2
+  displayName: 'Delete Resource Group arm-validation-rg'
+  inputs:
+    azureSubscription: 'Demo Azure Connection'
+    action: DeleteRG
+    resourceGroupName: 'arm-validation-rg'
+  condition: always()
+
