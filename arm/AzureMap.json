@@ -1,0 +1,30 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "##{Build.BuildNumber}##",
+  "parameters": {
+    "flooding-parameters": {
+      "type": "object"
+    }
+  },
+  "resources": [
+    {
+      "name": "[parameters('flooding-parameters').map.name]",
+      "type": "Microsoft.Maps/accounts",
+      "apiVersion": "2018-05-01",
+      "location": "global",
+      "tags": "[parameters('flooding-parameters').map.tags]",
+      "sku": {
+        "name": "[parameters('flooding-parameters').map.sku]"
+      }
+    },
+    {
+      "condition": false,
+      "name": "[concat('groupLock',uniqueString(resourceGroup().id))]",
+      "type": "Microsoft.Authorization/locks",
+      "apiVersion": "2016-09-01",
+      "properties": {
+        "level": "CanNotDelete"
+      }
+    }    
+  ]
+}

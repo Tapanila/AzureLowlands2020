@@ -1,0 +1,78 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+    "contentVersion": "##{Build.BuildNumber}##",
+    "parameters": {
+        "resourceGroupLocation": {
+            "type": "string",
+            "defaultValue": "West Europe",
+            "metadata": {
+                "description": "The location which is used for resource groups"
+            }
+        },
+        "containerUri": {
+            "type": "string",
+            "metadata": {
+                "description": "URI to storage account containing linked ARM templates"
+            }
+        },
+        "containerSasToken": {
+            "type": "string",
+            "metadata": {
+                "description": "Sas Token to storage account containing linked ARM templates"
+            }
+        },
+        "flooding-parameters": {
+            "type": "object"
+        }
+    },
+    "variables": {
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Resources/resourceGroups",
+            "apiVersion": "2018-05-01",
+            "location": "[parameters('resourceGroupLocation')]",
+            "name": "[parameters('flooding-parameters').map.resourceGroup]"
+        },
+        {
+            "name": "azure_map_deployment",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2018-05-01",
+            "resourceGroup": "[parameters('flooding-parameters').map.resourceGroup]",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('containerUri'), 'AzureMap.json', parameters('containerSasToken'))]"
+                },
+                "parameters": {
+                    "flooding-parameters": {
+                        "value": "[parameters('flooding-parameters')]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups/', parameters('flooding-parameters').map.resourceGroup)]"
+            ]
+        },
+        {
+            "name": "azure_signalr_deployment",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2018-05-01",
+            "resourceGroup": "[parameters('flooding-parameters').signalr.resourceGroup]",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('containerUri'), 'SignalR.json', parameters('containerSasToken'))]"
+                },
+                "parameters": {
+                    "flooding-parameters": {
+                        "value": "[parameters('flooding-parameters')]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "azure_map_deployment"
+            ]
+        }
+    ]
+}

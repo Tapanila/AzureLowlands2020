@@ -1,0 +1,22 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "##{Build.BuildNumber}##",
+    "parameters": {
+        "flooding-parameters": {
+            "type": "object"
+          }
+    },
+    "resources": [
+        {
+            "name": "[parameters('flooding-parameters').signalr.name]",
+            "type": "Microsoft.SignalRService/SignalR",
+            "apiVersion": "2018-03-01-preview",
+            "location": "[parameters('flooding-parameters').signalr.location]",
+            "properties": {
+                "hostNamePrefix": "[parameters('flooding-parameters').signalr.name]"
+            },
+            "sku": "[parameters('flooding-parameters').signalr.sku]",
+            "tags": "[parameters('flooding-parameters').signalr.tags]"
+        }
+    ]
+}

@@ -1,0 +1,38 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentParameters.json#",
+  "contentVersion": "##{Build.BuildNumber}##",
+  "parameters": {
+    "containerUri": {
+      "value": "#{ArmContainerUri}#"
+    },
+    "containerSasToken": {
+      "value": "#{ArmContainerSasToken}#"
+    },
+    "flooding-parameters": {
+      "value": {
+        "map": {
+          "name": "#{mapName}#-#{environment}#",
+          "resourceGroup": "#{mapResourceGroup}#",
+          "sku": "#{mapSku}#",
+          "tags": {
+            "environment": "#{environment}#",
+            "appName": "#{appName}#"
+          }
+        },
+        "signalr": {
+          "name": "#{signalrName}#-#{environment}#",
+          "location": "#{signalrLocation}#",
+          "resourceGroup": "#{signalrResourceGroup}#",
+          "sku": {
+            "capacity": "#{signalrCapacity}#",
+            "name": "#{signalrPricingTier}#"
+          },
+          "tags": {
+            "environment": "#{environment}#",
+            "appName": "#{appName}#"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,31 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- master
+
+pool:
+  vmImage: 'windows-2019'
+
+variables:
+  Version.Suffix: 1.0.0
+  Version.ContentVersion: $[counter(variables['Version.Suffix'], 0)]
+
+steps:
+- script: echo "##vso[build.updatebuildnumber]$(Version.Suffix).$(Version.ContentVersion)
+- task: replacetokens@3
+  inputs:
+    targetFiles: '$(System.DefaultWorkingDirectory)/arm/*'
+    encoding: 'auto'
+    writeBOM: true
+    actionOnMissing: 'fail'
+    keepToken: false
+    tokenPrefix: '##{'
+    tokenSuffix: '}##'
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.SourcesDirectory)/arm'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
